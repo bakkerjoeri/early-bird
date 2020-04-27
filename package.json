@@ -14,6 +14,7 @@
 		"postversion": "git push && git push --tags"
 	},
 	"dependencies": {
+		"@bakkerjoeri/fp": "^1.0.0",
 		"heks": "^2.0.0",
 		"roll-the-bones": "^1.0.1"
 	},

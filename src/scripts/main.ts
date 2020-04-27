@@ -10,9 +10,8 @@ import {
 	drawSprite,
 	findEntities,
 } from 'heks';
-
 import { spritesheet } from '../assets/spritesheet';
-import pipe from './utilities/pipe';
+import { pipe } from '@bakkerjoeri/fp';
 import { choose, getRandomNumberInRange } from 'roll-the-bones';
 
 const backgroundColor = '#e7f0ce';
