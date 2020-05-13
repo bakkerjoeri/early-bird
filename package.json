@@ -8,14 +8,14 @@
 		"url": "https://github.com/bakkerjoeri/early-bird.git"
 	},
 	"scripts": {
-		"serve": "webpack --watch --mode development",
+		"dev": "webpack --watch --mode development",
 		"build": "rm -rf dist && webpack --mode production",
 		"version": "npm run build && git add -A dist",
 		"postversion": "git push && git push --tags"
 	},
 	"dependencies": {
+		"@bakkerjoeri/array-without": "^2.0.2",
 		"@bakkerjoeri/fp": "^1.0.0",
-		"heks": "^2.0.0",
 		"roll-the-bones": "^1.0.1"
 	},
 	"devDependencies": {
