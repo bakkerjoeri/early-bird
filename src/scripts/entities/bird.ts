@@ -2,9 +2,30 @@ import { Position } from 'heks';
 import { choose, getRandomNumberInRange } from 'roll-the-bones';
 import { AnimationComponent, createAnimationComponent } from '../animations';
 
-interface SpriteComponent {
+export interface SpriteComponent {
 	name: string;
-	currentAnimationIndex: number;
+	currentFrameIndex: number;
+	isLooping: boolean;
+	isAnimating: boolean;
+}
+
+interface CreateSpriteOptions {
+	startingFrame?: number;
+	isLooping?: boolean;
+	isAnimating?: boolean;
+}
+
+function createSpriteComponent(name: string, {
+	startingFrame = 0,
+	isLooping = true,
+	isAnimating = true
+}: CreateSpriteOptions = {}) {
+	return {
+		name,
+		currentFrameIndex: startingFrame,
+		isLooping,
+		isAnimating,
+	};
 }
 
 export interface BirdEntity {
@@ -22,10 +43,7 @@ export function createBird(x: number, y: number): BirdEntity {
 	return {
 		isBird: true,
 		color: choose(['blue']),
-		sprite: {
-			name: 'bird-blue-hop-left',
-			currentAnimationIndex: 0,
-		},
+		sprite: createSpriteComponent('bird-blue-hop-left'),
 		behaviour: 'idle',
 		idleCountdown: 0,
 		facing: choose(['left', 'right']),

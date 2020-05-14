@@ -7,16 +7,16 @@ import {
 	DrawEvent,
 	addEntity,
 	getEntities,
-	addSprite,
 	getSprite,
 	drawSprite,
 	findEntities,
+	importSpriteSheet,
 } from 'heks';
 import { spritesheet } from '../assets/spritesheet';
 import { pipe } from '@bakkerjoeri/fp';
 import { getRandomNumberInRange, choose } from 'roll-the-bones';
-import { setEntities, createEntityIndex } from './entities';
-import { createBird } from './entities/bird';
+import { setEntities } from './entities';
+import { createBird, SpriteComponent } from './entities/bird';
 import { AnimationComponent, createChangeComponentAnimation, addAnimation, createWaitAnimation, handleAnimation } from './animations';
 import { setComponent } from './utilities/setComponent';
 
@@ -43,7 +43,7 @@ eventEmitter.on('draw', draw);
 
 function setupGame(state: GameState) {
 	return pipe(
-		...spritesheet.map(addSprite),
+		importSpriteSheet(spritesheet),
 		addEntity(createBird(0, 16)),
 	)(state);
 }
@@ -54,22 +54,32 @@ function animateSprites(state: GameState): GameState {
 	});
 
 	const updatedEntities = entitiesWithSprites.map(entity => {
+		const spriteComponent = entity.sprite as SpriteComponent;
 		const spriteOfEntity = getSprite(state, entity.sprite.name);
 
-		if (!spriteOfEntity.animation || !spriteOfEntity.animation.length) {
+		if (
+			!spriteComponent.isAnimating
+			|| spriteOfEntity.frames.length <= 1
+		) {
 			return entity;
 		}
 
-		if (entity.sprite.currentAnimationIndex === spriteOfEntity.animation.length - 1) {
+		const isLastFrame = spriteComponent.currentFrameIndex === spriteOfEntity.frames.length - 1;
+
+		if (isLastFrame && !spriteComponent.isLooping) {
+			return entity;
+		}
+
+		if (isLastFrame && spriteComponent.isLooping) {
 			return setComponent('sprite')({
 				...entity.sprite,
-				currentAnimationIndex: 0,
+				currentFrameIndex: 0,
 			})(entity);
 		}
 
 		return setComponent('sprite')({
 			...entity.sprite,
-			currentAnimationIndex: entity.sprite.currentAnimationIndex + 1,
+			currentFrameIndex: entity.sprite.currentFrameIndex + 1,
 		})(entity);
 	});
 
@@ -144,9 +154,7 @@ function draw(state: GameState, { context, scale }: DrawEvent, { emit }: EventHa
 
 	drawableEntities.forEach(entity => {
 		const sprite = getSprite(state, entity.sprite.name);
-		const currentFrameIndex = sprite.animation ? sprite.animation[entity.sprite.currentAnimationIndex] : 0;
-
-		drawSprite(sprite, currentFrameIndex, context, entity.position, { scale, offset: sprite.offset });
+		drawSprite(sprite, context, entity.position, entity.sprite.currentFrameIndex, { scale });
 	});
 
 	return state;
